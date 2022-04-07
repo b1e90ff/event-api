@@ -1,10 +1,15 @@
 plugins {
     id 'java'
+    id 'maven-publish'
 }
 
-group 'de.byteterm.eventapi'
-version '1.0-SNAPSHOT'
+group = "de.byteterm"
+version = "1.0"
 
 repositories {
     mavenCentral()
+}
+
+dependencies {
+    implementation 'org.jetbrains:annotations:22.0.0'
 }
