@@ -29,10 +29,10 @@ import java.util.LinkedHashSet;
  */
 public class EventAPI {
 
-    private final Collection<Listener> listeners;
+    private static final Collection<Listener> listeners;
 
-    public EventAPI() {
-        this.listeners = new LinkedHashSet<>();
+    static {
+        listeners = new LinkedHashSet<>();
     }
 
     /**
@@ -49,10 +49,10 @@ public class EventAPI {
      *
      * @param listener The {@link Listener} you want to register
      */
-    public void registerListener(Listener listener) {
-        if (this.listeners.contains(listener))
+    public static void registerListener(Listener listener) {
+        if (listeners.contains(listener))
             return;
-        this.listeners.add(listener);
+        listeners.add(listener);
     }
 
     /**
@@ -68,10 +68,10 @@ public class EventAPI {
      *
      * @param listener The {@link Listener} you want to unregister
      */
-    public void unregisterListener(Listener listener) {
-        if (!this.listeners.contains(listener))
+    public static void unregisterListener(Listener listener) {
+        if (!listeners.contains(listener))
             return;
-        this.listeners.remove(listener);
+        listeners.remove(listener);
     }
 
     /**
@@ -87,8 +87,8 @@ public class EventAPI {
      *
      * @param event The {@link Event} you want to trigger
      */
-    public void callEvent(Event event) {
-        for (Listener listener : this.listeners) {
+    public static void callEvent(Event event) {
+        for (Listener listener : listeners) {
             Class<? extends Listener> c = listener.getClass();
             final Method[] methods = c.getDeclaredMethods();
 
