@@ -220,6 +220,7 @@ Backup of *.doc*
 .idea/**/dbnavigator.xml
 
 # Gradle
+gradle/
 .idea/**/gradle.xml
 .idea/**/libraries
 
@@ -369,7 +370,7 @@ cscope.po.out
 
 
 ### TortoiseGit template
-# Project-level settings
+# Project-logLevel settings
 /.tgitconfig
 
 ### Momentics template
