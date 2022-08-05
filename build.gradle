@@ -14,7 +14,7 @@ repositories {
 
 dependencies {
     implementation 'org.jetbrains:annotations:23.0.0'
-    implementation 'de.byteterm:jlogger:1.1.2-20220805.223030-4'
+    implementation 'de.byteterm:jlogger:1.1.2-SNAPSHOT'
 }
 
 String getPublishUrl() {
