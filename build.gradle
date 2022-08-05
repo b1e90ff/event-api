@@ -1,9 +1,10 @@
 plugins {
     id 'java'
+    id 'maven-publish'
 }
 
-group = 'de.byteterm'
-version = '1.0'
+group 'de.byteterm'
+version '1.0'
 
 repositories {
     maven {
@@ -12,5 +13,29 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.jetbrains:annotations:22.0.0'
+    implementation 'org.jetbrains:annotations:23.0.0'
+    implementation 'de.byteterm:jlogger:1.1.2-20220805.223030-4'
+}
+
+String getPublishUrl() {
+    return version.endsWith("SNAPSHOT") ? "https://nexus.byteterm.de/repository/maven-snapshots/" : "https://nexus.byteterm.de/repository/maven-releases/"
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+        }
+    }
+
+    repositories {
+        maven {
+            url getPublishUrl()
+
+            credentials {
+                username project.repoUser
+                password project.repoPassword
+            }
+        }
+    }
 }

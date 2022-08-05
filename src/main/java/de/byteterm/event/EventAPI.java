@@ -2,6 +2,7 @@ package de.byteterm.event;
 
 import de.byteterm.event.listener.Listener;
 import de.byteterm.event.listener.annotation.HandleEvent;
+import de.byteterm.jlogger.Logger;
 
 import java.lang.reflect.Method;
 import java.util.Collection;
@@ -29,6 +30,8 @@ import java.util.LinkedHashSet;
  */
 public class EventAPI {
 
+    private static final Logger log = Logger.getLogger();
+
     private static final Collection<Listener> listeners;
 
     static {
@@ -53,6 +56,7 @@ public class EventAPI {
         if (listeners.contains(listener))
             return;
         listeners.add(listener);
+        log.debug("Register Listener " + listener.getClass().getSimpleName());
     }
 
     /**
@@ -72,6 +76,7 @@ public class EventAPI {
         if (!listeners.contains(listener))
             return;
         listeners.remove(listener);
+        log.debug("Unregister Listener " + listener.getClass().getSimpleName());
     }
 
     /**
@@ -88,6 +93,7 @@ public class EventAPI {
      * @param event The {@link Event} you want to trigger
      */
     public static void callEvent(Event event) {
+        log.debug("Calling Event " + event.getEventName());
         for (Listener listener : listeners) {
             Class<? extends Listener> c = listener.getClass();
             final Method[] methods = c.getDeclaredMethods();
@@ -100,8 +106,7 @@ public class EventAPI {
                             || !method.getParameterTypes()[0].isAssignableFrom(event.getClass())) continue;
                     method.invoke(listener, event);
                 } catch (Exception ex) {
-                    System.err.println("Uncaught exception while firing event:");
-                    ex.printStackTrace();
+                    log.fatal(ex);
                 }
             }
         }

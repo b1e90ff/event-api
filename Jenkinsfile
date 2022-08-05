@@ -14,9 +14,15 @@ pipeline {
         group = ''
         artifactId = ''
 
-        // Nexus
-        registry = "https://nexus.byteterm.de/"
-        registryCredentials = 'ByteTerm-Nexus-Username'
+        // Discord
+        PICTURE = ' '
+        FOOTER = ' '
+        IMAGE = ' '
+        LINK = ' '
+        RESULT = 'SUCCESS'
+        THUMBNAIL = ' '
+        TITLE = ''
+        WEBHOOK = credentials('ByteTerm_Discord_WEBHOOK_OFFICIAL')
     }
     stages {
 
@@ -26,13 +32,15 @@ pipeline {
                 script {
                     gv = load "jenkins.groovy"
                     VERSION = gv.getVersion()
+                    TITLE = "Event-API ${VERSION} - New Version!"
+                    FOOTER = "https://nexus.byteterm.de/service/rest/repository/browse/maven-public/de/byteterm/event-api/${VERSION}/"
                     group = gv.getGroup()
                     artifactId = gv.getArtifactId()
 
-                    sh '''
-                        touch gradle.properties
-                        echo 'org.gradle.java.home=/usr/lib/jvm/java-17-oracle/' > gradle.properties
-                       '''
+                    withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId:'ByteTerm-Nexus-Username', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+                        def gradleProperties = "org.gradle.java.home=/usr/lib/jvm/java-17-oracle/\nrepoUser=$USERNAME\nrepoPassword=$PASSWORD"
+                        writeFile(file: 'gradle.properties', text: gradleProperties)
+                    }
                 }
             }
         }
@@ -46,19 +54,24 @@ pipeline {
             }
         }
 
-        // merge-request
-        stage('merge-request') {
+        // Main Branch
+        stage('main') {
             when{
                 expression {
-                    BRANCH_NAME.startsWith('MR')
+                    BRANCH_NAME.startsWith('main')
                 }
             }
 
             steps {
                 script {
-                    def data = "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd\">\n<modelVersion>4.0.0</modelVersion>\n<groupId>${group}</groupId>\n<artifactId>${artifactId}</artifactId>\n<version>${VERSION}</version>\n<packaging>pom</packaging>\n</project>"
-                    writeFile(file: "${artifactId}-${VERSION}.pom", text: data)
-                    gv.deployPublic()
+                    gv.publish()
+
+                    def updateMessage = gv.getUpdateMessage();
+
+                    if (updateMessage != null) {
+                        echo updateMessage
+                        discordSend description: updateMessage, enableArtifactsList: false, footer: FOOTER, image: IMAGE, link: IMAGE, result: RESULT, scmWebUrl: '', thumbnail: THUMBNAIL, title: TITLE, webhookURL: WEBHOOK
+                    }
                 }
             }
         }
